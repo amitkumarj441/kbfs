@@ -360,8 +360,9 @@ func (j journalMDOps) Put(ctx context.Context, rmd *RootMetadata) (
 
 		bundle.lock.Lock()
 		defer bundle.lock.Unlock()
-		return bundle.mdJournal.put(ctx, j.jServer.config.Crypto(),
-			j.jServer.config.KeyManager(), rmd, uid, key)
+		return bundle.mdJournal.put(ctx, uid, key,
+			j.jServer.config.Crypto(),
+			j.jServer.config.KeyManager(), rmd)
 	}
 
 	return j.MDOps.Put(ctx, rmd)
@@ -405,8 +406,9 @@ func (j journalMDOps) PutUnmerged(ctx context.Context, rmd *RootMetadata) (
 
 		bundle.lock.Lock()
 		defer bundle.lock.Unlock()
-		return bundle.mdJournal.put(ctx, j.jServer.config.Crypto(),
-			j.jServer.config.KeyManager(), rmd, uid, key)
+		return bundle.mdJournal.put(ctx, uid, key,
+			j.jServer.config.Crypto(),
+			j.jServer.config.KeyManager(), rmd)
 	}
 
 	return j.MDOps.PutUnmerged(ctx, rmd)

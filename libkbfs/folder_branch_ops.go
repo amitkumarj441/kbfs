@@ -2957,7 +2957,8 @@ func (fbo *folderBranchOps) setExLocked(
 
 	// If the file is a symlink, do nothing (to match ext4
 	// behavior).
-	if de.Type == Sym {
+	if de.Type == Sym || de.Type == Dir {
+		fbo.log.CDebugf(ctx, "Ignoring setex on type %s", de.Type)
 		return nil
 	}
 
@@ -2965,9 +2966,14 @@ func (fbo *folderBranchOps) setExLocked(
 		de.Type = Exec
 	} else if !ex && (de.Type == Exec) {
 		de.Type = File
+	} else {
+		// Treating this as a no-op, without updating the ctime, is a
+		// POSIX violation, but it's an important optimization to keep
+		// permissions-preserving rsyncs fast.
+		fbo.log.CDebugf(ctx, "Ignoring no-op setex")
+		return nil
 	}
-	// If the type isn't File or Exec, there's nothing to do, but
-	// change the ctime anyway (to match ext4 behavior).
+
 	de.Ctime = fbo.nowUnixNano()
 
 	parentPath := file.parentPath()
